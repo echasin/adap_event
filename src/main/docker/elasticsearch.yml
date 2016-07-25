@@ -1,0 +1,10 @@
+version: '2'
+services:
+    adap_event-elasticsearch:
+        container_name: adap_event-elasticsearch
+        image: elasticsearch:1.7.5
+        # volumes:
+        #     - ~/volumes/jhipster/adap_event/elasticsearch/:/usr/share/elasticsearch/data/
+        ports:
+            - 9200:9200
+            - 9300:9300
