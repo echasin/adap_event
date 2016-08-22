@@ -216,7 +216,7 @@ public class Alert implements Serializable {
 
     @Override
     public String toString() {
-        return "Alert{" +
+        return "{" +
             "id=" + id +
             ", name='" + name + "'" +
             ", description='" + description + "'" +

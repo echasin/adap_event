@@ -2,28 +2,43 @@ package com.innvo.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import com.innvo.domain.Alert;
+import com.innvo.domain.Event;
 import com.innvo.repository.AlertRepository;
 import com.innvo.repository.search.AlertSearchRepository;
 import com.innvo.web.rest.util.HeaderUtil;
 import com.innvo.web.rest.util.PaginationUtil;
+
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jms.core.JmsMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
+import javax.jms.JMSException;
+import javax.jms.Queue;
+import javax.naming.*;
 import javax.validation.Valid;
+
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
@@ -33,6 +48,14 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
 @RestController
 @RequestMapping("/api")
 public class AlertResource {
+	
+	public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+
+	@Autowired
+	private JmsMessagingTemplate jmsMessagingTemplate;
+
+	@Autowired
+	private Queue queue;
 
     private final Logger log = LoggerFactory.getLogger(AlertResource.class);
         
@@ -164,6 +187,71 @@ public class AlertResource {
         HttpHeaders headers = PaginationUtil.generateSearchPaginationHttpHeaders(query, page, "/api/_search/alerts");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
+    
+    /**
+     * POST  /alerts : Create a new alert.
+     *
+     * @param alert the alert to create
+     * @return the ResponseEntity with status 201 (Created) and with body the new alert, or with status 400 (Bad Request) if the alert has already an ID
+     * @throws URISyntaxException if the Location URI syntax is incorrect
+     * @throws JMSException 
+     * @throws NamingException 
+     */
+    @RequestMapping(value = "/alerttojms",
+        method = RequestMethod.POST,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    
+	public ResponseEntity<Alert> alertJms(@Valid @RequestBody Alert alert)
+			throws URISyntaxException, JMSException, NamingException {
+		log.debug("REST request to alertJms Alert : {}", alert);
+		String msg = alert.toString();
+		this.jmsMessagingTemplate.convertAndSend(this.queue, msg);
+		return null;
+	}
 
+
+    /**
+     * GET  /alerts/:id : get the "id" alert.
+     *
+     * @param id the id of the alert to retrieve
+     * @return the ResponseEntity with status 200 (OK) and with body the alert, or with status 404 (Not Found)
+     * @throws ParseException 
+     */
+    @RequestMapping(value = "/eventobject/{startDateTime}",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+	public List<Event> getEvents(@PathVariable String startDateTime) throws ParseException {
+
+		ZonedDateTime date = ZonedDateTime.parse(startDateTime);
+		Date d = Date.from(date.toInstant());
+		SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
+		sdf.format(d);
+		String myTime = sdf.format(d);
+		String replaceZone = myTime.replace("Z", "");
+		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
+		Date d1 = sdf1.parse(replaceZone);
+		Calendar addMinutes = Calendar.getInstance();
+		addMinutes.setTime(d1);
+		addMinutes.add(Calendar.SECOND, 30);
+		String startTime = sdf1.format(addMinutes.getTime());
+		Calendar subMinutes = Calendar.getInstance();
+		subMinutes.setTime(d1);
+		subMinutes.add(Calendar.SECOND, 30);
+		String endTime = sdf1.format(subMinutes.getTime());
+		Calendar cal = Calendar.getInstance(Locale.getDefault());
+		LocalDateTime ldt = LocalDateTime.parse(startTime);
+		LocalDateTime ldt1 = LocalDateTime.parse(endTime);
+		ZoneId zoneId = ZoneId.of(cal.getTimeZone().getID());
+		ZonedDateTime startdateTime = ZonedDateTime.of(ldt, zoneId);
+		ZonedDateTime enddateTime = ZonedDateTime.of(ldt1, zoneId);
+		log.debug("StartTime :" + startdateTime);
+		log.debug("EndTime :" + enddateTime);
+		List<Event> result = alertRepository.findEventDates(enddateTime, startdateTime);
+		log.debug("Result :" + result);
+		return result;
+
+	}
 
 }

@@ -4,6 +4,7 @@ import com.innvo.config.Constants;
 import com.innvo.config.DefaultProfileUtil;
 import com.innvo.config.JHipsterProperties;
 
+import org.apache.activemq.command.ActiveMQQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -12,11 +13,15 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.env.Environment;
+import org.springframework.jms.annotation.EnableJms;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import javax.jms.Queue;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
@@ -26,10 +31,16 @@ import java.util.Collection;
 @EnableAutoConfiguration(exclude = { MetricFilterAutoConfiguration.class, MetricRepositoryAutoConfiguration.class })
 @EnableConfigurationProperties({ JHipsterProperties.class, LiquibaseProperties.class })
 @EnableEurekaClient
+@EnableJms
 public class AdapEventApp {
 
     private static final Logger log = LoggerFactory.getLogger(AdapEventApp.class);
 
+    @Bean
+	public Queue queue() {
+		return new ActiveMQQueue("DemoQueue");
+	}
+    
     @Inject
     private Environment env;
 
