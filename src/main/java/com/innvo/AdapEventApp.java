@@ -38,7 +38,7 @@ public class AdapEventApp {
 
     @Bean
 	public Queue queue() {
-		return new ActiveMQQueue("DemoQueue");
+		return new ActiveMQQueue("AlertMessageQueue");
 	}
     
     @Inject

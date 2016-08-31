@@ -205,8 +205,9 @@ public class AlertResource {
 	public ResponseEntity<Alert> alertJms(@Valid @RequestBody Alert alert)
 			throws URISyntaxException, JMSException, NamingException {
 		log.debug("REST request to alertJms Alert : {}", alert);
-		String msg = alert.toString();
-		this.jmsMessagingTemplate.convertAndSend(this.queue, msg);
+		String alertMessage = alert.toString();
+		String modifiedMsg = alertMessage.replace("Alert", "");
+		this.jmsMessagingTemplate.convertAndSend(this.queue, modifiedMsg);
 		return null;
 	}
 
@@ -224,33 +225,39 @@ public class AlertResource {
     @Timed
 	public List<Event> getEvents(@PathVariable String startDateTime) throws ParseException {
 
-		ZonedDateTime date = ZonedDateTime.parse(startDateTime);
-		Date d = Date.from(date.toInstant());
-		SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
-		sdf.format(d);
-		String myTime = sdf.format(d);
+		ZonedDateTime stringDate = ZonedDateTime.parse(startDateTime);
+		Date stringToDate = Date.from(stringDate.toInstant());
+		SimpleDateFormat sdFormat1 = new SimpleDateFormat(DATE_FORMAT);
+		String myTime = sdFormat1.format(stringToDate);
 		String replaceZone = myTime.replace("Z", "");
-		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
-		Date d1 = sdf1.parse(replaceZone);
+		SimpleDateFormat sdFormat2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
+		Date date = sdFormat2.parse(replaceZone);
+		
 		Calendar addMinutes = Calendar.getInstance();
-		addMinutes.setTime(d1);
-		addMinutes.add(Calendar.SECOND, 30);
-		String startTime = sdf1.format(addMinutes.getTime());
+		addMinutes.setTime(date);
+		addMinutes.add(Calendar.MINUTE, 03);
+		String startTime = sdFormat2.format(addMinutes.getTime());
+		
 		Calendar subMinutes = Calendar.getInstance();
-		subMinutes.setTime(d1);
-		subMinutes.add(Calendar.SECOND, 30);
-		String endTime = sdf1.format(subMinutes.getTime());
-		Calendar cal = Calendar.getInstance(Locale.getDefault());
-		LocalDateTime ldt = LocalDateTime.parse(startTime);
-		LocalDateTime ldt1 = LocalDateTime.parse(endTime);
-		ZoneId zoneId = ZoneId.of(cal.getTimeZone().getID());
-		ZonedDateTime startdateTime = ZonedDateTime.of(ldt, zoneId);
-		ZonedDateTime enddateTime = ZonedDateTime.of(ldt1, zoneId);
-		log.debug("StartTime :" + startdateTime);
-		log.debug("EndTime :" + enddateTime);
-		List<Event> result = alertRepository.findEventDates(enddateTime, startdateTime);
-		log.debug("Result :" + result);
-		return result;
+		subMinutes.setTime(date);
+		subMinutes.add(Calendar.MINUTE, -03);
+		String endTime = sdFormat2.format(subMinutes.getTime());
+		
+		Calendar calendar = Calendar.getInstance(Locale.getDefault());
+		
+		LocalDateTime localStartTime = LocalDateTime.parse(startTime);
+		LocalDateTime localEndTime = LocalDateTime.parse(endTime);
+		
+		ZoneId zoneId = ZoneId.of(calendar.getTimeZone().getID());
+		
+		ZonedDateTime startdateTime = ZonedDateTime.of(localStartTime, zoneId);
+		ZonedDateTime enddateTime = ZonedDateTime.of(localEndTime, zoneId);
+		
+		log.debug("StartDateTime :" + startdateTime);
+		log.debug("EndDateTime :" + enddateTime);
+		List<Event> events = alertRepository.findEventDates(enddateTime, startdateTime);
+		log.debug("Result :" + events);
+		return events;
 
 	}
 
