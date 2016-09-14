@@ -4,7 +4,7 @@ import com.innvo.config.Constants;
 import com.innvo.config.DefaultProfileUtil;
 import com.innvo.config.JHipsterProperties;
 
-import org.apache.activemq.command.ActiveMQQueue;
+import org.apache.activemq.command.ActiveMQTopic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -20,7 +20,7 @@ import org.springframework.jms.annotation.EnableJms;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import javax.jms.Queue;
+import javax.jms.Topic;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -37,8 +37,8 @@ public class AdapEventApp {
     private static final Logger log = LoggerFactory.getLogger(AdapEventApp.class);
 
     @Bean
-	public Queue queue() {
-		return new ActiveMQQueue("AlertMessageQueue");
+	public Topic topic() {
+		return new ActiveMQTopic("AlertMessageQueue");
 	}
     
     @Inject

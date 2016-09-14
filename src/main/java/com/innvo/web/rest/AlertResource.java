@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
 import javax.jms.JMSException;
-import javax.jms.Queue;
+import javax.jms.Topic;
 import javax.naming.*;
 import javax.validation.Valid;
 
@@ -55,7 +55,7 @@ public class AlertResource {
 	private JmsMessagingTemplate jmsMessagingTemplate;
 
 	@Autowired
-	private Queue queue;
+	private Topic topic;
 
     private final Logger log = LoggerFactory.getLogger(AlertResource.class);
         
@@ -207,7 +207,7 @@ public class AlertResource {
 		log.debug("REST request to alertJms Alert : {}", alert);
 		String alertMessage = alert.toString();
 		String modifiedMsg = alertMessage.replace("Alert", "");
-		this.jmsMessagingTemplate.convertAndSend(this.queue, modifiedMsg);
+		this.jmsMessagingTemplate.convertAndSend(this.topic, modifiedMsg);
 		return null;
 	}
 
@@ -235,12 +235,12 @@ public class AlertResource {
 		
 		Calendar addMinutes = Calendar.getInstance();
 		addMinutes.setTime(date);
-		addMinutes.add(Calendar.MINUTE, 03);
+		addMinutes.add(Calendar.MINUTE, 10);
 		String startTime = sdFormat2.format(addMinutes.getTime());
 		
 		Calendar subMinutes = Calendar.getInstance();
 		subMinutes.setTime(date);
-		subMinutes.add(Calendar.MINUTE, -03);
+		subMinutes.add(Calendar.MINUTE, -10);
 		String endTime = sdFormat2.format(subMinutes.getTime());
 		
 		Calendar calendar = Calendar.getInstance(Locale.getDefault());
