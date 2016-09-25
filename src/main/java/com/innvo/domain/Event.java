@@ -77,12 +77,15 @@ public class Event implements Serializable {
     @Column(name = "domain", length = 25, nullable = false)
     private String domain;
 
-    @OneToMany(mappedBy = "event")
-    @JsonIgnore
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-    private Set<Identifier> identifiers = new HashSet<>();
+    //@OneToMany(mappedBy = "event")
+    //@JsonIgnore
+    //@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    //private Set<Identifier> identifiers = new HashSet<>();
 
-    public Long getId() {
+    @ManyToOne
+    private Recordtype recordtype;
+    
+	public Long getId() {
         return id;
     }
 
@@ -186,14 +189,23 @@ public class Event implements Serializable {
         this.domain = domain;
     }
 
-    public Set<Identifier> getIdentifiers() {
-        return identifiers;
-    }
+   // public Set<Identifier> getIdentifiers() {
+   //    return identifiers;
+   // }
 
-    public void setIdentifiers(Set<Identifier> identifiers) {
-        this.identifiers = identifiers;
-    }
+   // public void setIdentifiers(Set<Identifier> identifiers) {
+   //     this.identifiers = identifiers;
+   // }
 
+    
+    public Recordtype getRecordtype() {
+		return recordtype;
+	}
+
+	public void setRecordtype(Recordtype recordtype) {
+		this.recordtype = recordtype;
+	}
+	
     @Override
     public boolean equals(Object o) {
         if (this == o) {
