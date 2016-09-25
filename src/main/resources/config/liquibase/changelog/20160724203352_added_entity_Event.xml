@@ -69,6 +69,10 @@
                 <constraints nullable="false" />
             </column>
             
+            <column name="recordtype_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            
             <!-- jhipster-needle-liquibase-add-column - Jhipster will add columns here, do not remove-->
         </createTable>
         <dropDefaultValue tableName="event" columnName="startdatetime" columnDataType="datetime"/>

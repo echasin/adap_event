@@ -1,5 +1,6 @@
 package com.innvo.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.data.elasticsearch.annotations.Document;
@@ -8,16 +9,20 @@ import javax.persistence.*;
 import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Objects;
 
+import com.innvo.domain.enumeration.Objecttype;
+
 /**
- * A Identifier.
+ * A Recordtype.
  */
 @Entity
-@Table(name = "identifier")
+@Table(name = "recordtype")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-@Document(indexName = "identifier")
-public class Identifier implements Serializable {
+@Document(indexName = "recordtype")
+public class Recordtype implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -26,14 +31,18 @@ public class Identifier implements Serializable {
     private Long id;
 
     @NotNull
-    @Size(max = 50)
-    @Column(name = "type", length = 50, nullable = false)
-    private String type;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "objecttype", nullable = false)
+    private Objecttype objecttype;
 
     @NotNull
+    @Size(max = 50)
+    @Column(name = "name", length = 50, nullable = false)
+    private String name;
+
     @Size(max = 255)
-    @Column(name = "value", length = 255, nullable = false)
-    private String value;
+    @Column(name = "description", length = 255)
+    private String description;
 
     @NotNull
     @Size(max = 25)
@@ -54,11 +63,16 @@ public class Identifier implements Serializable {
     @Column(name = "domain", length = 25, nullable = false)
     private String domain;
 
-    @ManyToOne
-    private Alert alert;
+    @OneToMany(mappedBy = "recordtype")
+    @JsonIgnore
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    private Set<Category> categories = new HashSet<>();
 
-    @ManyToOne
-    private Event event;
+   
+    @OneToMany(mappedBy = "recordtype")
+    @JsonIgnore
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    private Set<Event> events = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -68,20 +82,28 @@ public class Identifier implements Serializable {
         this.id = id;
     }
 
-    public String getType() {
-        return type;
+    public Objecttype getObjecttype() {
+        return objecttype;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setObjecttype(Objecttype objecttype) {
+        this.objecttype = objecttype;
     }
 
-    public String getValue() {
-        return value;
+    public String getName() {
+        return name;
     }
 
-    public void setValue(String value) {
-        this.value = value;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getStatus() {
@@ -116,20 +138,20 @@ public class Identifier implements Serializable {
         this.domain = domain;
     }
 
-    public Alert getAlert() {
-        return alert;
+    public Set<Category> getCategories() {
+        return categories;
     }
 
-    public void setAlert(Alert alert) {
-        this.alert = alert;
+    public void setCategories(Set<Category> categories) {
+        this.categories = categories;
     }
 
-    public Event getEvent() {
-        return event;
+    public Set<Event> getEvents() {
+       return events;
     }
 
-    public void setEvent(Event event) {
-        this.event = event;
+    public void setEvents(Set<Event> events) {
+        this.events = events;
     }
 
     @Override
@@ -140,11 +162,11 @@ public class Identifier implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Identifier identifier = (Identifier) o;
-        if(identifier.id == null || id == null) {
+        Recordtype recordtype = (Recordtype) o;
+        if(recordtype.id == null || id == null) {
             return false;
         }
-        return Objects.equals(id, identifier.id);
+        return Objects.equals(id, recordtype.id);
     }
 
     @Override
@@ -154,10 +176,11 @@ public class Identifier implements Serializable {
 
     @Override
     public String toString() {
-        return "Identifier{" +
+        return "Recordtype{" +
             "id=" + id +
-            ", type='" + type + "'" +
-            ", value='" + value + "'" +
+            ", objecttype='" + objecttype + "'" +
+            ", name='" + name + "'" +
+            ", description='" + description + "'" +
             ", status='" + status + "'" +
             ", lastmodifiedby='" + lastmodifiedby + "'" +
             ", lastmodifieddatetime='" + lastmodifieddatetime + "'" +

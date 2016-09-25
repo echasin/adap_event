@@ -24,7 +24,7 @@
                   separator=","
                   tableName="alert"/> 
          <loadData encoding="UTF-8"
-                  file="config/liquibase/adap_events_01.csv"
+                  file="config/liquibase/adap_events_0.csv"
                   separator=","
                   tableName="event"/> 
           <!--  
