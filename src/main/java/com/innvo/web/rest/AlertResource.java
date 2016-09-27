@@ -2,7 +2,6 @@ package com.innvo.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import com.innvo.domain.Alert;
-import com.innvo.domain.Event;
 import com.innvo.repository.AlertRepository;
 import com.innvo.repository.search.AlertSearchRepository;
 import com.innvo.web.rest.util.HeaderUtil;
@@ -29,15 +28,7 @@ import javax.validation.Valid;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
@@ -49,7 +40,7 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
 @RequestMapping("/api")
 public class AlertResource {
 	
-	public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+	
 
 	@Autowired
 	private JmsMessagingTemplate jmsMessagingTemplate;
@@ -209,56 +200,6 @@ public class AlertResource {
 		String modifiedMsg = alertMessage.replace("Alert", "");
 		this.jmsMessagingTemplate.convertAndSend(this.topic, modifiedMsg);
 		return null;
-	}
-
-
-    /**
-     * GET  /alerts/:id : get the "id" alert.
-     *
-     * @param id the id of the alert to retrieve
-     * @return the ResponseEntity with status 200 (OK) and with body the alert, or with status 404 (Not Found)
-     * @throws ParseException 
-     */
-    @RequestMapping(value = "/eventobject/{startDateTime}",
-        method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    @Timed
-	public List<Event> getEvents(@PathVariable String startDateTime) throws ParseException {
-
-		ZonedDateTime stringDate = ZonedDateTime.parse(startDateTime);
-		Date stringToDate = Date.from(stringDate.toInstant());
-		SimpleDateFormat sdFormat1 = new SimpleDateFormat(DATE_FORMAT);
-		String myTime = sdFormat1.format(stringToDate);
-		String replaceZone = myTime.replace("Z", "");
-		SimpleDateFormat sdFormat2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
-		Date date = sdFormat2.parse(replaceZone);
-		
-		Calendar addMinutes = Calendar.getInstance();
-		addMinutes.setTime(date);
-		addMinutes.add(Calendar.MINUTE, 10);
-		String startTime = sdFormat2.format(addMinutes.getTime());
-		
-		Calendar subMinutes = Calendar.getInstance();
-		subMinutes.setTime(date);
-		subMinutes.add(Calendar.MINUTE, -10);
-		String endTime = sdFormat2.format(subMinutes.getTime());
-		
-		Calendar calendar = Calendar.getInstance(Locale.getDefault());
-		
-		LocalDateTime localStartTime = LocalDateTime.parse(startTime);
-		LocalDateTime localEndTime = LocalDateTime.parse(endTime);
-		
-		ZoneId zoneId = ZoneId.of(calendar.getTimeZone().getID());
-		
-		ZonedDateTime startdateTime = ZonedDateTime.of(localStartTime, zoneId);
-		ZonedDateTime enddateTime = ZonedDateTime.of(localEndTime, zoneId);
-		
-		log.debug("StartDateTime :" + startdateTime);
-		log.debug("EndDateTime :" + enddateTime);
-		List<Event> events = alertRepository.findEventDates(enddateTime, startdateTime);
-		log.debug("Result :" + events);
-		return events;
-
 	}
 
 }
