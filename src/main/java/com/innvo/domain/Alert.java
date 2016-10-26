@@ -28,7 +28,10 @@ public class Alert implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Size(max = 100)
+    @Column(name = "asset_id", length = 100)
+    private Long asset_id;
+    
+	@Size(max = 100)
     @Column(name = "name", length = 100)
     private String name;
 
@@ -90,6 +93,15 @@ public class Alert implements Serializable {
         this.id = id;
     }
 
+    public Long getAsset_id() {
+		return asset_id;
+	}
+
+	public void setAsset_id(Long asset_id) {
+		this.asset_id = asset_id;
+	}
+    
+    
     public String getName() {
         return name;
     }

@@ -1,4 +1,0 @@
-id, type, value, status, lastmodifiedby, lastmodifieddatetime, domain, alert_id
-101,"hostname","db.server.one","Active","echasin","2016-07-01 00:00:00","Demo",100
-102,"ip","127.0.0.0","Active","echasin","2016-07-01 00:00:00","Demo",100
-103,"port","5432","Active","echasin","2016-07-01 00:00:00","Demo",100
