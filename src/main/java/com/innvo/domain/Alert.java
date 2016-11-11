@@ -230,6 +230,7 @@ public class Alert implements Serializable {
     public String toString() {
         return "Alert{" +
             "id=" + id +
+            ",asset_id="+ asset_id+""+
             ", name='" + name + "'" +
             ", description='" + description + "'" +
             ", category='" + category + "'" +
