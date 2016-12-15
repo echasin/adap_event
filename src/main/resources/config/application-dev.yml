@@ -31,10 +31,10 @@ spring:
     jackson:
         serialization.indent_output: true
     datasource:
-        url: jdbc:postgresql://localhost:5432/adap_ms
+        url: jdbc:postgresql://localhost:5432/adap_elasticsearch_new
         name:
-        username: root
-        password: root
+        username: postgres
+        password: adminadmin
     jpa:
         database-platform: com.innvo.domain.util.FixedPostgreSQL82Dialect
         database: POSTGRESQL
