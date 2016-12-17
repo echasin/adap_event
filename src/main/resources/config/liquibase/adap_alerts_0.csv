@@ -1,2 +1,4 @@
 id,asset_id,name,description,category,subcategory,subtype,type,startdatetime,status,lastmodifiedby,lastmodifieddatetime,domain
- 100,2000,Greater than 600ms,Test Alert for event_correlation_1 workflow,system,database,I/O,secs/read,2016-07-01 00:15:00,Active,echasin,2016-07-01 00:00:00,DEM0
+ 100,2000,Greater than 600ms,Test Alert for event_correlation_1 workflow,system,database,I/O,secs/read,2016-07-01 00:15:00,Active,echasin,2016-07-01 00:00:00,DEV
+3000,3000,Alert for Asset.Name CXXXX no Startdatetime,Test Record (NegativeTest) for workflowevent.bpnm2 . java.time.format.DateTimeParseException: Text 'null' could not be parsed at index ,system,database,I/O,secs/read,null,Active,echasin,2016-07-01 00:00:00,DEV
+3000,3000,Alert for Asset.Name CXXXX ,"Test Record (NegativeTest) for workflowevent.bpnm2 . {""total"":0,""max_score"":null,""hits"":[]}} 	",system,database,I/O,secs/read,2016-07-01 00:15:00,Active,echasin,2016-07-01 00:00:00,DEV
